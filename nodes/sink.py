@@ -4,7 +4,7 @@ import asyncio
 import time
 
 from pyridis_api import Node, Input, Inputs, Outputs, Queries, Queryables, Header
-from message import SIZES, BENCH_LEN
+from message import SIZES, BENCH_LEN, Image
 
 class MySink(Node):
     latency: Input
@@ -14,6 +14,9 @@ class MySink(Node):
         pass
 
     async def new(self, inputs: Inputs, outputs: Outputs, queries: Queries, queryables: Queryables, config: Dict[str, Any]):
+        self.prefix = config["prefix"]
+        self.suffix = config["suffix"]
+
         self.latency = await inputs.with_input("latency")
         self.throughput = await inputs.with_input("throughput")
 
@@ -58,6 +61,23 @@ class MySink(Node):
             throughput_gbps = throughput * size / 1_000_000_000.0 # bytes to giga bytes
 
             print(f"{latency:<15.3f} {throughput:>15.3f} {throughput_gbps:>15.6f} {size:>15}")
+
+        filename = f"{self.suffix}" if not self.prefix else f"{self.prefix}-{self.suffix}"
+
+        file_path = f"out/{filename}.csv"
+        file = await asyncio.to_thread(open, file_path, "w")
+
+        file.write("latency_us,throughput_ops,throughput_gbps,size\n")
+
+        for size in SIZES:
+            avg_latency = latencies_map.get(size, 0.0)
+            throughput = throughputs_map.get(size, 0.0)
+            throughput_gbps = throughput * size / 1_000_000_000.0
+
+            line = f"{avg_latency:.3f},{throughput:.3f},{throughput_gbps:.6f},{size}\n"
+            file.write(line)
+
+        file.close()
 
 def pyridis_node():
     return MySink

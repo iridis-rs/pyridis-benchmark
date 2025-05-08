@@ -6,7 +6,7 @@ import asyncio
 import time
 
 from pyridis_api import Node, Output, Inputs, Outputs, Queries, Queryables
-from message import SIZES, BENCH_LEN
+from message import SIZES, BENCH_LEN, Image, Metadata
 
 class MySource(Node):
     latency: Output
@@ -21,16 +21,30 @@ class MySource(Node):
             self.data[size] = random_bytes
 
     async def new(self, inputs: Inputs, outputs: Outputs, queries: Queries, queryables: Queryables, config: Dict[str, Any]):
+        self.prefix = config["prefix"]
+        self.suffix = config["suffix"]
+
         self.latency = await outputs.with_output("latency")
         self.throughput = await outputs.with_output("throughput")
 
     async def start(self):
         for size in SIZES:
             for _ in range(BENCH_LEN):
-                try:
-                    await self.latency.send(pa.array(self.data[size]))
-                except:
-                    return
+                if self.prefix == "":
+                    image = Image(
+                        data=self.data[size],
+                        metadata=None
+                    )
+
+                    try:
+                        await self.latency.send(image.to_arrow())
+                    except:
+                        return
+                elif self.prefix == "raw":
+                    try:
+                        await self.latency.send(pa.array(self.data[size]))
+                    except:
+                        return
 
                 await asyncio.sleep(0.003)
 
@@ -38,10 +52,22 @@ class MySource(Node):
 
         for size in SIZES:
             for _ in range(BENCH_LEN):
-                try:
-                    await self.throughput.send(pa.array(self.data[size]))
-                except:
-                    return
+                if self.prefix == "":
+                    image = Image(
+                        data=self.data[size],
+                        metadata=None
+                    )
+
+                    try:
+                        await self.throughput.send(image.to_arrow())
+                    except:
+                        return
+                elif self.prefix == "raw":
+                    try:
+                        await self.throughput.send(pa.array(self.data[size]))
+                    except:
+                        return
+
 
 def pyridis_node():
     return MySource

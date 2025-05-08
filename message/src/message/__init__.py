@@ -1,3 +1,10 @@
+from pyridis_message import ArrowMessage
+
+from dataclasses import dataclass
+from typing import Optional
+
+import numpy as np
+
 SIZES = [
     1,
     8,
@@ -13,5 +20,13 @@ SIZES = [
 
 BENCH_LEN = 100
 
-def main() -> None:
-    print("Hello from message!")
+@dataclass
+class Metadata(ArrowMessage):
+    name: Optional[str]
+    width: np.uint32
+    height: np.uint32
+
+@dataclass
+class Image(ArrowMessage):
+    data: np.ndarray
+    metadata: Optional[Metadata]
