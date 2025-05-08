@@ -1,0 +1,12 @@
+[package]
+name = "pyridis-benchmark"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+raw = []
+
+[dependencies]
+iridis = "0.3"
+
+pyridis-file-ext = "0.3"

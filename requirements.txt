@@ -1,0 +1,5 @@
+pyridis-api==0.3.5
+pyridis-message==0.3.5
+numpy==2.2.5
+pyarrow==20.0.0
+./message
