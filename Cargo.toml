@@ -9,4 +9,4 @@ raw = []
 [dependencies]
 iridis = "0.3"
 
-pyridis-file-ext = "0.3"
+pyridis-file-ext = { version = "0.3", features = ["cdylib"] }

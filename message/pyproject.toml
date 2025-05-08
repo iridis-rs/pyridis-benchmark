@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Enzo Le Van", email = "dev@enzo-le-van.fr" }]
 requires-python = ">=3.11"
-dependencies = ["pyridis-message==0.3.4"]
+dependencies = ["pyridis-message==0.3.5"]
 
 [project.scripts]
 message = "message:main"
